@@ -1,0 +1,8 @@
+{
+  "name": "ralph-plan",
+  "description": "Guided brainstorming and planning flow that produces a step-by-step plan, then launches Ralph Loop to execute it.",
+  "version": "1.0.0",
+  "author": {
+    "name": "dawsmana"
+  }
+}
