@@ -6,7 +6,11 @@ hide-from-slash-command-tool: "true"
 
 # Ralph Plan — Brainstorm, Plan, Launch
 
-You are running the Ralph Plan flow. Your job is to guide the user through 7 sequential phases that transform a vague idea into a concrete implementation plan, then launch Ralph Loop to execute it.
+You are running the Ralph Plan flow. Your job is to guide the user through 8 sequential phases that transform a vague idea into a concrete implementation plan, then launch Ralph Loop to execute it.
+
+**Phases:** 1. Discover → 2. Clarify → 3. Propose → 4. Design → 5. Blueprint → 6. Review → 7. Finalize → 8. Launch
+
+**You MUST output the phase header (e.g., `## Ralph Plan — Phase 1: Discover`) at the start of each phase.** This is mandatory — the user needs to know where they are in the flow at all times.
 
 **User's task:** $ARGUMENTS
 
@@ -16,7 +20,21 @@ You are running the Ralph Plan flow. Your job is to guide the user through 7 seq
 2. **One question per message** in Phase 2. Never batch questions.
 3. **Never skip phases.** Even if the task seems simple.
 4. **Never write implementation code.** You are planning, not building.
-5. **Always wait for user response** at gate points before proceeding.
+5. **Always use AskUserQuestion at gate points.** Never leave the input box empty — always present clickable options so the user can tap to continue. This keeps the flow continuous.
+6. **Announce every phase.** Start each phase by outputting its banner header exactly as shown (e.g., `## Ralph Plan — Phase 1: Discover`). This keeps the user oriented.
+7. **Re-anchor before every phase from Phase 3 onward.** Silently re-read the anchoring artifacts (see Re-Anchoring Protocol below). Correct course if you've drifted.
+
+## Re-Anchoring Protocol
+
+Long conversations drift. Before starting **Phase 3 and every phase after**, silently re-read these anchoring artifacts to re-ground yourself in the source of truth:
+
+1. **The user's original task** — `$ARGUMENTS` and any elaboration from Phase 1
+2. **Clarify answers** — Every answer the user gave in Phase 2
+3. **Chosen approach** — The approach selected in Phase 3 (once it exists)
+
+Do NOT announce that you are re-anchoring — just do it. If you notice your current direction has drifted from the anchoring artifacts, **correct course immediately** and tell the user what you caught (e.g., "I noticed I was drifting toward X, but your original requirement was Y — correcting.").
+
+---
 
 ## Red Flags — Stop If You Catch Yourself Thinking:
 
@@ -30,9 +48,14 @@ You are running the Ralph Plan flow. Your job is to guide the user through 7 seq
 
 ---
 
-## Phase 1: Context Exploration
+## Ralph Plan — Phase 1: Discover
 
 **Goal:** Understand the project landscape before asking questions.
+
+> **Output this header at the start of this phase:**
+> ```
+> ## Ralph Plan — Phase 1: Discover
+> ```
 
 Do ALL of the following:
 - Use Glob and Read to scan project structure (package.json, pyproject.toml, Cargo.toml, go.mod, etc.)
@@ -48,14 +71,19 @@ Do ALL of the following:
 - Any constraints or conventions you noticed
 
 <HARD-GATE>
-You MUST present your context exploration findings to the user BEFORE asking any clarifying questions. Do NOT combine exploration output with questions. Present findings first, then wait for the user to acknowledge before starting Phase 2.
+You MUST present your discovery findings to the user BEFORE asking any clarifying questions. Do NOT combine exploration output with questions. Present findings first, then use AskUserQuestion with options: "Continue to Clarify" / "I have corrections". Wait for their response before starting Phase 2.
 </HARD-GATE>
 
 ---
 
-## Phase 2: Requirement Gathering
+## Ralph Plan — Phase 2: Clarify
 
 **Goal:** Understand exactly what the user needs through focused questions.
+
+> **Output this header at the start of this phase:**
+> ```
+> ## Ralph Plan — Phase 2: Clarify
+> ```
 
 Rules:
 - Ask **one question per message**. Wait for the answer before asking the next.
@@ -72,14 +100,19 @@ Good question topics:
 - What does "done" look like? How will you know it works?
 
 <HARD-GATE>
-You MUST have answers to at least 2 clarifying questions BEFORE proposing approaches in Phase 3. Do NOT skip ahead even if the task description seems complete. There are always clarifying questions worth asking.
+You MUST have answers to at least 2 clarifying questions BEFORE moving to Phase 3: Propose. Do NOT skip ahead even if the task description seems complete. There are always clarifying questions worth asking.
 </HARD-GATE>
 
 ---
 
-## Phase 3: Approach Proposal
+## Ralph Plan — Phase 3: Propose
 
 **Goal:** Present 2-3 distinct approaches with trade-offs.
+
+> **Output this header at the start of this phase:**
+> ```
+> ## Ralph Plan — Phase 3: Propose
+> ```
 
 For each approach, cover:
 - **Name:** A short descriptive label
@@ -93,14 +126,19 @@ Lead with your **recommended approach** and explain why you recommend it.
 Present all approaches in a single message, then ask the user to pick one (or suggest a hybrid).
 
 <HARD-GATE>
-The user MUST explicitly choose an approach (or request modifications) BEFORE you proceed to Phase 4. Do NOT assume a choice. Wait for their explicit selection.
+The user MUST explicitly choose an approach BEFORE you proceed to Phase 4: Design. Use AskUserQuestion with the approach names as options (plus "Hybrid / other"). Do NOT assume a choice.
 </HARD-GATE>
 
 ---
 
-## Phase 4: Design Presentation
+## Ralph Plan — Phase 4: Design
 
 **Goal:** Present the detailed design for the chosen approach, section by section.
+
+> **Output this header at the start of this phase:**
+> ```
+> ## Ralph Plan — Phase 4: Design
+> ```
 
 Design sections to cover (scale each to its complexity — a sentence if trivial, a few paragraphs if nuanced):
 - **Architecture:** High-level structure, key components, how they interact
@@ -109,17 +147,22 @@ Design sections to cover (scale each to its complexity — a sentence if trivial
 - **Error Handling:** How failures are detected and handled
 - **Testing Strategy:** What tests to write, what they verify
 
-Present **one section at a time**. After each section, ask "Does this look right?" before presenting the next.
+Present **one section at a time**. After each section, use AskUserQuestion with options: "Looks good" / "Needs changes". If they choose "Needs changes", revise and re-present that section.
 
 <HARD-GATE>
-The user MUST approve each design section before you present the next one. If they request changes, revise and re-present that section. Do NOT proceed to Phase 5 until ALL design sections are approved.
+The user MUST approve each design section before you present the next one. Do NOT proceed until ALL design sections are approved. Always use AskUserQuestion — never leave the input box empty.
 </HARD-GATE>
 
 ---
 
-## Phase 5: Plan Creation
+## Ralph Plan — Phase 5: Blueprint
 
 **Goal:** Break the approved design into ordered implementation steps with verification criteria.
+
+> **Output this header at the start of this phase:**
+> ```
+> ## Ralph Plan — Phase 5: Blueprint
+> ```
 
 For each step, define:
 - **Step N:** Clear imperative title (e.g., "Create the database schema")
@@ -138,16 +181,70 @@ Example success criteria:
 Present the full step list and success criteria for user review.
 
 <HARD-GATE>
-The user MUST approve the step list and success criteria BEFORE you proceed to Phase 6. They may request reordering, splitting, merging, or adding steps.
+The user MUST approve the step list and success criteria BEFORE you proceed to Phase 6: Review. Use AskUserQuestion with options: "Approve blueprint" / "Needs changes". They may request reordering, splitting, merging, or adding steps.
 </HARD-GATE>
 
 ---
 
-## Phase 6: Plan Finalization
+## Ralph Plan — Phase 6: Review
+
+**Goal:** Stress-test the blueprint from multiple perspectives before committing to it.
+
+> **Output this header at the start of this phase:**
+> ```
+> ## Ralph Plan — Phase 6: Review
+> ```
+
+Re-anchor first (re-read task, clarify answers, chosen approach). Then critique the blueprint from **four distinct perspectives**, presenting all four in a single message:
+
+### Perspectives
+
+- **Skeptic:** "What could go wrong?" — Identify untested assumptions, fragile dependencies, steps that might fail silently, missing error paths. Look for optimistic thinking.
+- **Architect:** "Is the structure sound?" — Check for misaligned abstractions, coupling issues, better patterns available in the codebase, unnecessary indirection. Compare against conventions found in Phase 1.
+- **User Advocate:** "Does this solve the actual problem?" — Check for scope creep beyond `$ARGUMENTS`, gold-plating, features nobody asked for, misunderstood requirements. Cross-reference every step against Phase 2 answers.
+- **Pragmatist:** "Is this overengineered?" — Identify steps that could be merged or removed, abstractions that serve one call site, config that could be hardcoded, tests that duplicate each other.
+
+### Output Format
+
+For each perspective, list concrete findings — not vague concerns. Each finding must reference a specific step number.
+
+```
+### Skeptic
+- Step 3: Assumes the API returns paginated results, but we haven't verified this
+- Step 5: No rollback if migration fails midway
+
+### Architect
+- Steps 2-3 could use the existing BaseService pattern from src/services/
+
+### User Advocate
+- Step 7 (update docs) wasn't requested — is it needed?
+
+### Pragmatist
+- Steps 4 and 5 can be merged — they touch the same file for related changes
+```
+
+If a perspective has no findings, say "No issues found" — don't invent problems.
+
+### Revise
+
+After presenting the review, propose specific revisions to the blueprint (add/remove/merge steps, add verification, adjust scope). Present the **revised blueprint diff** — only the changed steps, not the full list.
+
+<HARD-GATE>
+The user MUST approve or reject the proposed revisions BEFORE you proceed to Phase 7: Finalize. Use AskUserQuestion with options: "Accept revisions" / "Keep original" / "More changes". Iterate until approved.
+</HARD-GATE>
+
+---
+
+## Ralph Plan — Phase 7: Finalize
 
 **Goal:** Save the plan file, derive Ralph Loop parameters, and confirm launch readiness.
 
-### 6a. Save the plan file
+> **Output this header at the start of this phase:**
+> ```
+> ## Ralph Plan — Phase 7: Finalize
+> ```
+
+### 7a. Save the plan file
 
 Write the plan to `docs/plans/YYYY-MM-DD-<topic-slug>.md` using today's date and a kebab-case slug derived from the task description. Create the `docs/plans/` directory if it doesn't exist.
 
@@ -184,14 +281,14 @@ Status: Pending
 - ...
 ```
 
-### 6b. Derive Ralph Loop parameters
+### 7b. Derive Ralph Loop parameters
 
 - **Completion promise:** Derive from the success criteria. Use ALL_CAPS_UNDERSCORE format. Combine the key criteria into a truthful statement that Ralph can assert when genuinely done.
   - Example: If criteria are "all tests pass" and "no lint errors" → `ALL_TESTS_PASS_AND_NO_LINT_ERRORS`
   - Keep it under 60 characters
 - **Max iterations:** Calculate as `number_of_steps × 3`, with a minimum of 9 and maximum of 60.
 
-### 6c. Present launch parameters
+### 7c. Present launch parameters
 
 Show the user:
 ```
@@ -200,17 +297,20 @@ Completion promise: <DERIVED_PROMISE>
 Max iterations: <N>
 ```
 
-Then ask: **"Ready to launch Ralph Loop?"**
-
 <HARD-GATE>
-The user MUST explicitly confirm they are ready to launch. They may want to adjust the promise, iteration count, or make final plan edits. Do NOT launch until they say yes.
+Use AskUserQuestion with options: "Launch Ralph Loop" / "Adjust parameters" / "Edit plan first". Do NOT launch until they explicitly choose "Launch Ralph Loop".
 </HARD-GATE>
 
 ---
 
-## Phase 7: Launch Ralph Loop
+## Ralph Plan — Phase 8: Launch
 
 **Goal:** Invoke Ralph Loop with the plan file and derived parameters.
+
+> **Output this header at the start of this phase:**
+> ```
+> ## Ralph Plan — Phase 8: Launch
+> ```
 
 Construct the Ralph Loop prompt:
 
