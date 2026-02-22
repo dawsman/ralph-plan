@@ -312,25 +312,14 @@ Use AskUserQuestion with options: "Launch Ralph Loop" / "Adjust parameters" / "E
 > ## Ralph Plan — Phase 8: Launch
 > ```
 
-Construct the Ralph Loop prompt:
+**CRITICAL: The args string passed to the Skill tool MUST be a single line with no newlines.** Multi-line prompts break the argument parser. Collapse the entire prompt into one line, using semicolons or periods to separate instructions.
+
+Invoke Ralph Loop using the Skill tool with a **single-line** args string:
 
 ```
-Follow the implementation plan at docs/plans/<filename>.md step by step.
-
-Instructions:
-1. Read the plan file first
-2. Check which steps are already complete (look at files, tests, git history)
-3. Work on the next incomplete step
-4. After completing each step, run its verification
-5. When ALL steps are complete and ALL success criteria are met, output <promise>DERIVED_PROMISE</promise>
-
-Do NOT output the promise until every step is genuinely complete and verified.
+Skill(skill: "ralph-loop:ralph-loop", args: "Follow the implementation plan at docs/plans/<filename>.md step by step. Read the plan file first. Check which steps are already complete (look at files, tests, git history). Work on the next incomplete step. After completing each step, run its verification. When ALL steps are complete and ALL success criteria are met, output <promise>DERIVED_PROMISE</promise>. Do NOT output the promise until every step is genuinely complete and verified. --completion-promise 'DERIVED_PROMISE' --max-iterations <N>")
 ```
 
-Then invoke Ralph Loop using the Skill tool:
-
-```
-Skill(skill: "ralph-loop:ralph-loop", args: "<prompt> --completion-promise '<PROMISE>' --max-iterations <N>")
-```
+Replace `<filename>`, `DERIVED_PROMISE`, and `<N>` with the actual values from Phase 7. Do NOT insert newlines into the args string.
 
 **This is the terminal action.** After invoking the Skill tool, your job is done. Ralph Loop takes over.
