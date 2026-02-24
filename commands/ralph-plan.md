@@ -1,7 +1,6 @@
 ---
 description: "Guided brainstorming, planning, and Ralph Loop launch"
 argument-hint: "description of the task to plan"
-hide-from-slash-command-tool: "true"
 ---
 
 # Ralph Plan — Brainstorm, Plan, Launch
