@@ -38,6 +38,7 @@ Every phase has a hard gate — you approve before it moves on. All gates use cl
 - **Re-anchoring:** From Phase 3 onward, the model silently re-reads your original task, your answers, and the chosen approach before each phase to prevent drift.
 - **Multi-perspective review:** Phase 6 critiques the plan from four angles before you commit to it.
 - **Hard gates:** No phase advances without your explicit approval.
+- **Claude Codes (agent teams):** At any gate, you can deploy Claude Code agent teams for deeper analysis. They run in parallel, report findings, and recommend actions — but never modify files or advance phases. You decide what to incorporate.
 
 ## Commands
 
@@ -51,6 +52,24 @@ Start the full 8-phase planning flow.
 /ralph-plan Refactor the cache layer to use Redis
 /ralph-plan Build a CLI tool for database migrations
 ```
+
+### /claude-codes \<phase\>
+
+Deploy Claude Code agent teams into a specific phase for deeper analysis. Usually invoked from within a running Ralph Plan session via the "Deploy Claude Codes" gate option.
+
+**Available teams by phase:**
+
+| Phase | Team | Focus |
+|-------|------|-------|
+| 1 | Codebase Recon | Stack, patterns, git history |
+| 2 | Requirements Research | Feasibility, prior art |
+| 3 | Approach Viability | Hidden costs, codebase fit |
+| 4 | Architecture Validation | Interfaces, dependencies |
+| 5 | Verification Pre-Check | Command validity, ordering |
+| 6 | Deep Stress-Test | Edge cases, regression, security |
+| 7 | Plan Quality | Coverage, testability |
+
+Agent teams are **report and recommend only** — they never modify files or advance the flow.
 
 ### Related Commands (from Ralph Loop plugin)
 

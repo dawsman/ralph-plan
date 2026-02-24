@@ -34,6 +34,44 @@ Long conversations drift. Before starting **Phase 3 and every phase after**, sil
 
 Do NOT announce that you are re-anchoring — just do it. If you notice your current direction has drifted from the anchoring artifacts, **correct course immediately** and tell the user what you caught (e.g., "I noticed I was drifting toward X, but your original requirement was Y — correcting.").
 
+## Claude Codes — Agent Teams (Report & Recommend Only)
+
+At **any phase**, you may deploy Claude Code agent teams to deepen understanding or speed up the process. Agent teams are **advisory only** — they report findings and recommend actions, but never modify files, advance phases, or make decisions.
+
+### When to Deploy
+
+Deploy agent teams when:
+- A phase would benefit from **parallel deep research** (e.g., Phase 1 codebase exploration)
+- The task is **complex enough** that surface-level analysis risks missing critical details
+- The user **explicitly requests** deeper analysis at a gate point
+
+Do NOT deploy agent teams when:
+- The task is simple and the main flow covers it adequately
+- It would slow down a straightforward phase without adding value
+
+### How to Deploy
+
+1. **Offer** — At each hard gate, include "Deploy Claude Codes for deeper analysis" as an option alongside the standard gate options
+2. **Announce** — Tell the user which agent team is being deployed and why
+3. **Launch** — Use the Task tool to spawn agents in parallel (see `claude-codes` command for team definitions per phase)
+4. **Report** — Present the combined findings with clear section headers
+5. **Recommend** — Highlight top actionable findings
+6. **Defer** — The user decides what to incorporate. Never auto-apply agent findings.
+
+### Agent Teams Available Per Phase
+
+| Phase | Team | What They Investigate |
+|-------|------|-----------------------|
+| 1. Discover | Codebase Recon | Stack profile, patterns, git history — parallel deep-dive |
+| 2. Clarify | Requirements Research | Feasibility, prior art, better questions to ask |
+| 3. Propose | Approach Viability | Hidden costs, codebase fit, risk factors per approach |
+| 4. Design | Architecture Validation | Interface compatibility, dependency chains, coupling |
+| 5. Blueprint | Verification Pre-Check | Command validity, step ordering, dependency issues |
+| 6. Review | Deep Stress-Test | Edge cases, regression risk, security scan |
+| 7. Finalize | Plan Quality | Coverage gaps, untestable criteria, missing requirements |
+
+See the `claude-codes` command for full team definitions, agent roles, and report formats.
+
 ---
 
 ## Red Flags — Stop If You Catch Yourself Thinking:
@@ -71,7 +109,7 @@ Do ALL of the following:
 - Any constraints or conventions you noticed
 
 <HARD-GATE>
-You MUST present your discovery findings to the user BEFORE asking any clarifying questions. Do NOT combine exploration output with questions. Present findings first, then use AskUserQuestion with options: "Continue to Clarify" / "I have corrections". Wait for their response before starting Phase 2.
+You MUST present your discovery findings to the user BEFORE asking any clarifying questions. Do NOT combine exploration output with questions. Present findings first, then use AskUserQuestion with options: "Continue to Clarify" / "Deploy Claude Codes — Codebase Recon" / "I have corrections". If the user deploys Claude Codes, launch the Codebase Recon Team (Stack Profiler, Pattern Scout, History Analyst) in parallel, present their combined report, then re-offer the gate. Wait for their response before starting Phase 2.
 </HARD-GATE>
 
 ---
@@ -100,7 +138,7 @@ Good question topics:
 - What does "done" look like? How will you know it works?
 
 <HARD-GATE>
-You MUST have answers to at least 2 clarifying questions BEFORE moving to Phase 3: Propose. Do NOT skip ahead even if the task description seems complete. There are always clarifying questions worth asking.
+You MUST have answers to at least 2 clarifying questions BEFORE moving to Phase 3: Propose. Do NOT skip ahead even if the task description seems complete. There are always clarifying questions worth asking. After the final clarifying question, use AskUserQuestion with options: "Continue to Propose" / "Deploy Claude Codes — Requirements Research" / "Ask more questions". If deployed, present the Requirements Research report, then re-offer the gate.
 </HARD-GATE>
 
 ---
@@ -126,7 +164,7 @@ Lead with your **recommended approach** and explain why you recommend it.
 Present all approaches in a single message, then ask the user to pick one (or suggest a hybrid).
 
 <HARD-GATE>
-The user MUST explicitly choose an approach BEFORE you proceed to Phase 4: Design. Use AskUserQuestion with the approach names as options (plus "Hybrid / other"). Do NOT assume a choice.
+The user MUST explicitly choose an approach BEFORE you proceed to Phase 4: Design. Use AskUserQuestion with the approach names as options (plus "Hybrid / other" and "Deploy Claude Codes — Approach Viability"). If deployed, present the Approach Viability report for each approach, then re-offer the gate. Do NOT assume a choice.
 </HARD-GATE>
 
 ---
@@ -150,7 +188,7 @@ Design sections to cover (scale each to its complexity — a sentence if trivial
 Present **one section at a time**. After each section, use AskUserQuestion with options: "Looks good" / "Needs changes". If they choose "Needs changes", revise and re-present that section.
 
 <HARD-GATE>
-The user MUST approve each design section before you present the next one. Do NOT proceed until ALL design sections are approved. Always use AskUserQuestion — never leave the input box empty.
+The user MUST approve each design section before you present the next one. Do NOT proceed until ALL design sections are approved. Always use AskUserQuestion with options: "Looks good" / "Deploy Claude Codes — Architecture Validation" / "Needs changes". If deployed, present the Architecture Validation report for the current section, then re-offer the gate. Never leave the input box empty.
 </HARD-GATE>
 
 ---
@@ -181,7 +219,7 @@ Example success criteria:
 Present the full step list and success criteria for user review.
 
 <HARD-GATE>
-The user MUST approve the step list and success criteria BEFORE you proceed to Phase 6: Review. Use AskUserQuestion with options: "Approve blueprint" / "Needs changes". They may request reordering, splitting, merging, or adding steps.
+The user MUST approve the step list and success criteria BEFORE you proceed to Phase 6: Review. Use AskUserQuestion with options: "Approve blueprint" / "Deploy Claude Codes — Verification Pre-Check" / "Needs changes". If deployed, present the Verification Pre-Check report (command validity, step ordering), then re-offer the gate. They may request reordering, splitting, merging, or adding steps.
 </HARD-GATE>
 
 ---
@@ -230,7 +268,7 @@ If a perspective has no findings, say "No issues found" — don't invent problem
 After presenting the review, propose specific revisions to the blueprint (add/remove/merge steps, add verification, adjust scope). Present the **revised blueprint diff** — only the changed steps, not the full list.
 
 <HARD-GATE>
-The user MUST approve or reject the proposed revisions BEFORE you proceed to Phase 7: Finalize. Use AskUserQuestion with options: "Accept revisions" / "Keep original" / "More changes". Iterate until approved.
+The user MUST approve or reject the proposed revisions BEFORE you proceed to Phase 7: Finalize. Use AskUserQuestion with options: "Accept revisions" / "Deploy Claude Codes — Deep Stress-Test" / "Keep original" / "More changes". If deployed, launch the Deep Stress-Test Team (Edge Case Hunter, Regression Analyst, Security Scanner) in parallel, present their combined report, then re-offer the gate. Iterate until approved.
 </HARD-GATE>
 
 ---
@@ -298,7 +336,7 @@ Max iterations: <N>
 ```
 
 <HARD-GATE>
-Use AskUserQuestion with options: "Launch Ralph Loop" / "Adjust parameters" / "Edit plan first". Do NOT launch until they explicitly choose "Launch Ralph Loop".
+Use AskUserQuestion with options: "Launch Ralph Loop" / "Deploy Claude Codes — Plan Quality" / "Adjust parameters" / "Edit plan first". If deployed, present the Plan Quality report (coverage gaps, untestable criteria), then re-offer the gate. Do NOT launch until they explicitly choose "Launch Ralph Loop".
 </HARD-GATE>
 
 ---

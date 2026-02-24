@@ -36,6 +36,24 @@ Phase 6 critiques the blueprint from four angles before you commit:
 
 Each finding references a specific step number. After the review, revisions are proposed as a diff.
 
+### Claude Codes — Agent Teams (Report & Recommend Only)
+
+At any phase gate, you can deploy Claude Code agent teams to go deeper before moving on. Agent teams run in parallel, investigate specific concerns, and return a structured report — but they **never modify files or advance phases**. You review their findings and decide what to incorporate.
+
+Available teams:
+
+| Phase | Team | What They Investigate |
+|-------|------|-----------------------|
+| 1. Discover | Codebase Recon | Stack profile, patterns, git history |
+| 2. Clarify | Requirements Research | Feasibility, prior art, better questions |
+| 3. Propose | Approach Viability | Hidden costs, codebase fit, risk factors |
+| 4. Design | Architecture Validation | Interface compatibility, dependency chains |
+| 5. Blueprint | Verification Pre-Check | Command validity, step ordering |
+| 6. Review | Deep Stress-Test | Edge cases, regression risk, security scan |
+| 7. Finalize | Plan Quality | Coverage gaps, untestable criteria |
+
+Every hard gate includes a "Deploy Claude Codes" option. Select it to get a deeper analysis before approving.
+
 ### Continuous flow
 
 Every hard gate uses `AskUserQuestion` with clickable options — no empty input boxes, no typing "continue". The flow keeps moving with minimal friction.
@@ -55,6 +73,10 @@ Start the full 8-phase planning flow.
 ### `/ralph-plan help`
 
 Explains the plugin, all 8 phases, and how it fits with Ralph Loop.
+
+### `/claude-codes <phase>`
+
+Deploy Claude Code agent teams into a specific Ralph Plan phase for deeper analysis. Typically invoked from within a running Ralph Plan session via the gate options, but can also be called standalone.
 
 ## When to use
 
