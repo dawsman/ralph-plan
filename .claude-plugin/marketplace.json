@@ -1,0 +1,17 @@
+{
+  "name": "dawsman",
+  "owner": {
+    "name": "dawsman"
+  },
+  "metadata": {
+    "description": "dawsman's Claude Code plugins"
+  },
+  "plugins": [
+    {
+      "name": "ralph-plan",
+      "source": "./plugins/ralph-plan",
+      "description": "Guided brainstorming and planning flow that produces a step-by-step plan, then launches Ralph Loop to execute it.",
+      "version": "2.0.0"
+    }
+  ]
+}
