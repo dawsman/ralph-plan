@@ -104,10 +104,28 @@ Plans are saved to `docs/plans/YYYY-MM-DD-<topic-slug>.md` with:
 ## Requirements
 
 - [ralph-loop](https://github.com/anthropics/claude-code-plugins/tree/main/ralph-loop) plugin must be installed
+- **zsh users (macOS default):** Add `setopt NO_NOMATCH` to your `~/.zshrc`. Without this, Phase 8 (Launch) will fail because zsh interprets parentheses and angle brackets in the args string as glob patterns. This is a one-time fix:
+  ```bash
+  echo 'setopt NO_NOMATCH' >> ~/.zshrc && source ~/.zshrc
+  ```
 
 ## Cancellation
 
 Once Ralph Loop launches, use `/cancel-ralph` to stop it.
+
+## Troubleshooting
+
+### Phase 8 fails with `no matches found` error
+
+```
+(eval):1: no matches found: (look at files, tests, git history).
+```
+
+This is a zsh glob interpretation issue. Zsh treats parentheses `()`, angle brackets `<>`, and square brackets `[]` as glob operators. When the Skill tool passes the ralph-loop args through zsh, any natural language containing these characters causes a parse error.
+
+**Fix:** Add `setopt NO_NOMATCH` to `~/.zshrc` (see Requirements above). This tells zsh to pass unmatched patterns through literally instead of erroring.
+
+This is a one-time shell config change that fixes the issue for all plugins, not just Ralph Plan.
 
 ## Installation
 

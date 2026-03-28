@@ -351,12 +351,19 @@ Use AskUserQuestion with options: "Launch Ralph Loop" / "Deploy Claude Codes —
 
 **CRITICAL: The args string passed to the Skill tool MUST be a single line with no newlines.** Multi-line prompts break the argument parser. Collapse the entire prompt into one line, using semicolons or periods to separate instructions.
 
-Invoke Ralph Loop using the Skill tool with a **single-line** args string:
+**CRITICAL: The args string MUST NOT contain shell-hostile characters.** Zsh interprets parentheses, angle brackets, square brackets, and curly braces as glob/subshell operators, which causes parse errors. Rules:
+- NO parentheses `()` — rewrite to avoid them entirely, e.g. "check files, tests, and git history" instead of "(look at files, tests, git history)"
+- NO angle brackets `<>` — use the word "promise" as a plain word, not XML tags. Write "output promise DERIVED_PROMISE promise" or just "output the completion promise DERIVED_PROMISE"
+- NO square brackets `[]` or curly braces `{}`
+- NO unescaped asterisks or question marks
+- Plain alphanumeric text, hyphens, underscores, periods, commas, colons, semicolons, and single quotes are safe
+
+Invoke Ralph Loop using the Skill tool with a **single-line, shell-safe** args string:
 
 ```
-Skill(skill: "ralph-loop:ralph-loop", args: "Follow the implementation plan at docs/plans/<filename>.md step by step. Read the plan file first. Check which steps are already complete (look at files, tests, git history). Work on the next incomplete step. After completing each step, run its verification. When ALL steps are complete and ALL success criteria are met, output <promise>DERIVED_PROMISE</promise>. Do NOT output the promise until every step is genuinely complete and verified. --completion-promise 'DERIVED_PROMISE' --max-iterations <N>")
+Skill(skill: "ralph-loop:ralph-loop", args: "Follow the implementation plan at docs/plans/FILENAME.md step by step. Read the plan file first. Check which steps are already complete by looking at files, tests, and git history. Work on the next incomplete step. After completing each step, run its verification. When ALL steps are complete and ALL success criteria are met, output the completion promise DERIVED_PROMISE. Do NOT output the promise until every step is genuinely complete and verified. --completion-promise 'DERIVED_PROMISE' --max-iterations N")
 ```
 
-Replace `<filename>`, `DERIVED_PROMISE`, and `<N>` with the actual values from Phase 7. Do NOT insert newlines into the args string.
+Replace `FILENAME`, `DERIVED_PROMISE`, and `N` with the actual values from Phase 7. Do NOT insert newlines into the args string.
 
 **This is the terminal action.** After invoking the Skill tool, your job is done. Ralph Loop takes over.
