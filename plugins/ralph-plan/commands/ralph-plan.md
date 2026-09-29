@@ -133,7 +133,8 @@ Created: YYYY-MM-DD · Status: Pending · Branch: ralph/<slug>
 
 ## Phase 8/8: Preflight & launch
 
-1. Must be a git repo. If the working tree has uncommitted changes that aren't the plan folder, stop and ask the user (commit them / carry them onto the branch / abort) — this is the one allowed extra stop.
+1. Git is how the loop tracks and undoes work, so the project needs a local repo. **If it isn't one, don't ask: set one up.** Run `git init`, and if there's no `.gitignore`, write one covering secrets and junk (`.env*`, `*.key`, `*.pem`, `node_modules/`, `__pycache__/`, `.venv/`, `dist/`, `build/`, `.DS_Store`). Then commit everything as `initial snapshot (ralph-plan)`. This repo stays local and nothing is pushed. Say so in one line.
+   If it is already a repo and has uncommitted changes that aren't the plan folder, stop and ask the user whether to commit them, carry them onto the branch, or abort. This is the one allowed extra stop.
 2. Note the current commit (`git rev-parse HEAD`) as the base and record it in plan.md's header as `Base: <sha>`. Then `git checkout -b ralph/<slug>` and commit the plan folder: `plan: <title>`.
 3. Run: `bash "${CLAUDE_PLUGIN_ROOT}/scripts/start-loop.sh" <PLAN_DIR> <PROMISE> <N>`
    (If that path shows up literally as `${CLAUDE_PLUGIN_ROOT}` and fails, find the script with `ls -d ~/.claude/plugins/cache/*/ralph-plan/*/scripts/start-loop.sh` and use the newest.)

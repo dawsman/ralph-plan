@@ -100,7 +100,7 @@ export RALPH_PLAN_NOTIFY='curl -s "https://api.telegram.org/bot$TG_TOKEN/sendMes
 
 **To be truly unattended, run Claude with permissions that won't stop for approval.** For example, start it with `--permission-mode bypassPermissions` in a sandbox or container, or use `acceptEdits` plus an allowlist for git and your test commands. Otherwise the loop pauses at the first permission prompt until someone clicks.
 
-`bash`, `jq`, `perl`, `git`. `timeout` or `gtimeout` is optional; it caps `verify.sh` at about 8 minutes.
+`bash`, `jq`, `perl`, `git`. If your project isn't a git repo yet, Ralph Plan creates a local one, with a `.gitignore` for secrets, and nothing is pushed. `timeout` or `gtimeout` is optional; it caps `verify.sh` at about 8 minutes.
 
 ## Installation
 
