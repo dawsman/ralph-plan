@@ -1,6 +1,6 @@
 ---
 description: "Plan a task, then build it unattended in a loop that only stops when checks pass"
-argument-hint: "[--interactive | --no-questions] description of the task"
+argument-hint: "your task — start with -y to skip questions, or --interactive to approve each phase"
 ---
 
 # Ralph Plan — plan once, then build unattended
