@@ -1,7 +1,7 @@
 {
   "name": "ralph-plan",
-  "description": "Guided brainstorming and planning flow that produces a step-by-step plan, then launches Ralph Loop to execute it.",
-  "version": "2.0.0",
+  "description": "Plan a task in one round of questions, then build it unattended in a loop that only stops when an independent check script passes.",
+  "version": "3.0.0",
   "author": {
     "name": "dawsmana"
   }
