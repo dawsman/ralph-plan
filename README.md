@@ -32,9 +32,26 @@ Use `--interactive` to approve each phase yourself:
 This plugin has its own loop now. It doesn't need the separate ralph-loop plugin. Each iteration:
 
 1. Picks the next unticked step in `plan.md`
-2. Implements it, runs its verify command
-3. Has one fresh subagent review the diff against the step
+2. Hands it to a fresh worker agent that implements it and runs its verify command. The orchestrator then re-runs the check itself
+3. Has a fresh reviewer check the diff against the step (skipped for small, low-risk steps)
 4. Ticks the step, logs to `progress.md`, commits `step N: <title>`
+
+### Smart model use
+
+Each job goes to the model where it pays off most:
+
+| Job | Model |
+|---|---|
+| Planning, design, Phase 6 plan review | your session model (start Claude on your strongest) |
+| Repo recon (Phase 1) | Sonnet, read-only |
+| Routine steps (size S/M, low risk) | Sonnet implementer |
+| Large or high-risk steps, and every retry | session-model implementer |
+| Step review | none for S/low-risk, Sonnet for M/L low-risk, session model for high-risk |
+| Final whole-branch review | session model |
+
+Each step's worker starts fresh, so the main session stays small across a long run. Workers learn the repo from the plan's **Conventions** section and pass tips forward in **Notes for later steps**. When a step fails its check, the retry escalates to the stronger model. After 3 attempts the loop stops as blocked instead of wasting iterations. Reviewers can't edit files, because their tools don't allow it.
+
+Set `RALPH_PLAN_WORK_MODEL` (e.g. `opus` or `haiku`) to change the model for the routine workers.
 
 The loop ends when:
 
@@ -92,4 +109,5 @@ claude plugin install ralph-plan@dawsman
 - **Done is enforced.** The hook runs `verify.sh` itself instead of trusting the model's promise.
 - **Auto mode by default.** One question round, then no stops.
 - **Independent reviewers.** Recon runs by default on larger repos, and Phase 6 reviewers are fresh agents instead of self-critique.
+- **Model routing.** Sonnet workers handle routine steps and the session model takes hard or risky steps. Failed steps escalate to the stronger model, and a whole-branch review runs before finishing.
 - **Leaner commands.** The unreachable `/claude-codes` command and the separate help command were folded in.
