@@ -175,4 +175,5 @@ Agents: ralph-plan:implementer (Sonnet), ralph-plan:implementer-top (session mod
 
 ## Never
 Push, force-push, deploy, touch production or live data, delete the plan folder, or put <promise> / <blocked> tags anywhere except the very end of your reply.
+Never edit or delete `.claude/ralph-plan.local.md`. Only the Stop hook (or the user's /ralph-plan:cancel) ends the loop. If verify.sh passes but the hook keeps rejecting the promise twice in a row, end with <blocked>hook not accepting promise</blocked> instead.
 ```

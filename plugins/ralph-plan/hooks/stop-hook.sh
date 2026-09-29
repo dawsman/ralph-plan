@@ -56,10 +56,12 @@ if [[ ! "$ITERATION" =~ ^[0-9]+$ || ! "$MAX" =~ ^[0-9]+$ || -z "$PLAN_DIR" ]]; t
   exit 0
 fi
 
-# Last assistant text block from the transcript.
+# Last assistant text. Prefer the payload field: Claude Code writes the final
+# assistant entry to the transcript AFTER Stop hooks run, so the transcript
+# tail is one message stale. Fall back to it only on older versions.
+LAST_TEXT=$(echo "$HOOK_INPUT" | jq -r '.last_assistant_message // ""')
 TRANSCRIPT=$(echo "$HOOK_INPUT" | jq -r '.transcript_path // ""')
-LAST_TEXT=""
-if [[ -f "$TRANSCRIPT" ]]; then
+if [[ -z "$LAST_TEXT" && -f "$TRANSCRIPT" ]]; then
   LAST_TEXT=$(grep '"role":"assistant"' "$TRANSCRIPT" | tail -n 100 \
     | jq -rs 'map(.message.content[]? | select(.type == "text") | .text) | last // ""' 2>/dev/null || true)
 fi
