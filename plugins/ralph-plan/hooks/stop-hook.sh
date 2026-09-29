@@ -44,6 +44,8 @@ notify() {
 }
 finish() { # $1 = message
   log "$1"
+  # Commit just the log line so the branch is left clean.
+  git add -- "$PROGRESS" >/dev/null 2>&1 && git commit -q --no-verify -m "ralph-plan: ${1%% *}" -- "$PROGRESS" >/dev/null 2>&1 || true
   notify "Ralph Plan ($PLAN_DIR): $1"
   rm -f "$STATE"
   jq -n --arg m "Ralph Plan: $1 (log: $PROGRESS)" '{systemMessage: $m}'
