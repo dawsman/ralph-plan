@@ -1,0 +1,16 @@
+{
+  "description": "Ralph Plan build loop — re-feeds the plan until verify.sh passes",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/stop-hook.sh\"",
+            "timeout": 600
+          }
+        ]
+      }
+    ]
+  }
+}
