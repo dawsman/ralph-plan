@@ -21,6 +21,12 @@ A Claude Code plugin for **set-and-forget builds**. You describe a task and answ
 
 Every decision Claude makes without you is written to the plan's **Assumptions** section, so you can see it afterwards.
 
+Skip even the question round with `--no-questions` (or `-y`). Claude answers its own questions with the recommended option and logs them in the plan:
+
+```
+/ralph-plan --no-questions Add a dark mode toggle
+```
+
 Use `--interactive` to approve each phase yourself:
 
 ```
@@ -85,6 +91,7 @@ export RALPH_PLAN_NOTIFY='curl -s "https://api.telegram.org/bot$TG_TOKEN/sendMes
 | Command | |
 |---|---|
 | `/ralph-plan <task>` | plan + build (auto mode) |
+| `/ralph-plan --no-questions <task>` (or `-y`) | fully hands-off: Claude answers its own questions |
 | `/ralph-plan --interactive <task>` | approve each phase |
 | `/ralph-plan help` | explain the flow |
 | `/ralph-plan:cancel` | stop a running build loop |

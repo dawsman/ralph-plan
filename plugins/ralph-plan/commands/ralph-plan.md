@@ -1,6 +1,6 @@
 ---
 description: "Plan a task, then build it unattended in a loop that only stops when checks pass"
-argument-hint: "[--interactive] description of the task"
+argument-hint: "[--interactive | --no-questions] description of the task"
 ---
 
 # Ralph Plan — plan once, then build unattended
@@ -16,7 +16,9 @@ If the arguments are exactly `help`, explain this command briefly (phases, modes
 - **Auto (default):** you stop for the user exactly once — the Phase 2 intake. Every later decision you make yourself, choosing your recommended option and recording it under **Assumptions** in the plan. The one other stop: Phase 8 preflight problems you cannot fix safely.
 - **Interactive** (arguments start with `--interactive`): after each of Phases 1, 3, 4, 5 and 6, gate with AskUserQuestion ("Continue" / "Needs changes") before moving on.
 
-Strip `--interactive` from the task text. Output a one-line banner at the start of each phase, e.g. `## Ralph Plan — Phase 3/8: Propose`.
+- **No questions** (arguments start with `--no-questions` or `-y`): fully hands-off. Skip the Phase 2 question round: answer each question you would have asked yourself, picking the recommended option. Record every one under **Intake answers** marked "(auto)" and under **Assumptions**. Nothing stops for the user except Phase 8 preflight problems.
+
+Strip the mode flag from the task text. Output a one-line banner at the start of each phase, e.g. `## Ralph Plan — Phase 3/8: Propose`.
 
 ## Rules
 
@@ -45,7 +47,7 @@ Size the repo first (`git ls-files | wc -l`, top-level listing, README/CLAUDE.md
 
 Summarise in ≤8 bullets: stack, how to test, relevant patterns, constraints. Keep the full findings — they become the plan's **Conventions** section, which is all a fresh build worker knows about the repo.
 
-## Phase 2/8: Intake — the only stop in auto mode
+## Phase 2/8: Intake — the only stop in auto mode (skipped with `--no-questions`)
 
 Ask **one** AskUserQuestion call with 2–4 questions that would genuinely change the plan (scope, must-haves vs nice-to-haves, constraints, what "done" looks like). Every question gets a final option **"You decide"**. Don't ask what Phase 1 already answered. If the task is fully specified, ask one confirmation question about scope/done.
 
