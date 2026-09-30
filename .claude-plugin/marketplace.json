@@ -11,7 +11,7 @@
       "name": "ralph-plan",
       "source": "./plugins/ralph-plan",
       "description": "Plan a task in one round of questions, then build it unattended in a loop that only stops when an independent check script passes.",
-      "version": "3.2.0"
+      "version": "3.3.0"
     }
   ]
 }

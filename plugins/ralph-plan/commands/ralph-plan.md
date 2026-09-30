@@ -47,7 +47,9 @@ Size the repo first (`git ls-files | wc -l`, top-level listing, README/CLAUDE.md
   - *Patterns & prior art:* conventions, and existing code similar to the task — what to reuse or copy.
   - *History:* recent git activity and high-churn files near the task.
 
-Summarise in ≤8 bullets: stack, how to test, relevant patterns, constraints. Keep the full findings — they become the plan's **Conventions** section, which is all a fresh build worker knows about the repo.
+Also note which MCP tools this session has that fit the task, for example an mcpx connector for Search Console, analytics, ads or email. Write their exact names and what they're for into Conventions. Build workers inherit these tools, but they only use what the plan tells them about.
+
+Summarise in ≤8 bullets: stack, how to test, relevant patterns, constraints, useful tools. Keep the full findings — they become the plan's **Conventions** section, which is all a fresh build worker knows about the repo.
 
 ## Phase 2/8: Intake — the only stop in auto mode (skipped with `--no-questions`)
 

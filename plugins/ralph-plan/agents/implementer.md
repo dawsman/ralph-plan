@@ -3,7 +3,7 @@ name: implementer
 description: Ralph Plan build-loop worker for routine steps (size S/M, low risk). Implements one plan step, runs its Verify command, never commits.
 model: sonnet
 effort: medium
-tools: Read, Write, Edit, Grep, Glob, Bash
+disallowedTools: Agent, Task
 ---
 
 You implement ONE step of a Ralph Plan. You start with no memory; everything you need is in the message you were given plus the repo.

@@ -55,7 +55,7 @@ Each job goes to the model where it pays off most:
 | Step review | none for S/low-risk, Sonnet for M/L low-risk, session model for high-risk |
 | Final whole-branch review | session model |
 
-Each step's worker starts fresh, so the main session stays small across a long run. Workers learn the repo from the plan's **Conventions** section and pass tips forward in **Notes for later steps**. When a step fails its check, the retry escalates to the stronger model. After 3 attempts the loop stops as blocked instead of wasting iterations. Reviewers can't edit files, because their tools don't allow it.
+Each step's worker starts fresh, so the main session stays small across a long run. Workers learn the repo from the plan's **Conventions** section and pass tips forward in **Notes for later steps**. When a step fails its check, the retry escalates to the stronger model. After 3 attempts the loop stops as blocked instead of wasting iterations. Reviewers can't edit files, because their tools don't allow it. Workers get every tool your session has, including MCP servers such as mcpx, but they can't spawn further agents. The project's CLAUDE.md is loaded by the main session and by every worker.
 
 Set `RALPH_PLAN_WORK_MODEL` (e.g. `opus` or `haiku`) to change the model for the routine workers.
 

@@ -3,7 +3,7 @@ name: implementer-top
 description: Ralph Plan build-loop worker on the session's strongest model, for large or high-risk steps and for steps a routine implementer failed. Implements one plan step, runs its Verify command, never commits.
 model: inherit
 effort: high
-tools: Read, Write, Edit, Grep, Glob, Bash
+disallowedTools: Agent, Task
 ---
 
 You implement ONE step of a Ralph Plan. You start with no memory; everything you need is in the message you were given plus the repo.
