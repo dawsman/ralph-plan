@@ -74,6 +74,14 @@ if [[ -n "$BLOCKED" ]]; then
   finish "BLOCKED after iteration $ITERATION: $BLOCKED"
 fi
 
+# Stall: nothing changed (commit, working tree, or plan; progress.md ignored)
+# for 3 turns in a row. Computed before this hook writes its own log lines.
+FP=$( { git rev-parse HEAD 2>/dev/null; git diff HEAD -- . ":(exclude)$PLAN_DIR/progress.md" 2>/dev/null
+        git ls-files -o --exclude-standard 2>/dev/null | grep -v 'progress\.md$' | while IFS= read -r f; do cksum "$f"; done 2>/dev/null
+        cat "$PLAN_DIR/plan.md" 2>/dev/null; } | cksum | cut -d' ' -f1)
+STALLS=$(field stalls); [[ "$STALLS" =~ ^[0-9]+$ ]] || STALLS=0
+if [[ "$FP" == "$(field fingerprint)" ]]; then STALLS=$((STALLS + 1)); else STALLS=0; fi
+
 VERIFY_NOTE=""
 if [[ -n "$PROMISE" && "$(tag promise)" == "$PROMISE" ]]; then
   TO=""
@@ -93,13 +101,25 @@ $(echo "$VERIFY_OUT" | tail -n 40)
 Fix the cause, re-run verify.sh yourself, and only output the promise once it exits 0."
 fi
 
+if (( STALLS >= 3 )); then
+  finish "STOPPED: stalled — no progress in the last 3 turns (iteration $ITERATION)."
+fi
+
 if [[ $ITERATION -ge $MAX ]]; then
   finish "STOPPED: hit max iterations ($MAX) without passing verify.sh."
 fi
 
+# Runaway guards for unattended runs.
+STARTED=$(field started_epoch); MAX_HOURS=$(field max_hours)
+if [[ "$STARTED" =~ ^[0-9]+$ && "$MAX_HOURS" =~ ^[0-9]+$ ]]; then
+  if (( $(date +%s) - STARTED > MAX_HOURS * 3600 )); then
+    finish "STOPPED: time limit (${MAX_HOURS}h) reached at iteration $ITERATION without passing verify.sh."
+  fi
+fi
+
 NEXT=$((ITERATION + 1))
 TMP="$STATE.tmp.$$"
-sed "s/^iteration: .*/iteration: $NEXT/" "$STATE" > "$TMP" && mv "$TMP" "$STATE"
+sed -e "s/^iteration: .*/iteration: $NEXT/" -e "s/^fingerprint: .*/fingerprint: $FP/" -e "s/^stalls: .*/stalls: $STALLS/" "$STATE" > "$TMP" && mv "$TMP" "$STATE"
 
 REASON="Ralph Plan build loop, iteration $NEXT of $MAX. Read $PLAN_DIR/prompt.md and follow it exactly."
 [[ -n "$VERIFY_NOTE" ]] && REASON="$REASON

@@ -25,7 +25,7 @@ Strip the mode flag from the task text. Output a one-line banner at the start of
 1. Never write implementation code while planning. You write only the plan folder.
 2. Re-anchor before Phases 3–8: re-read the task, the intake answers and (from Phase 4) the chosen approach. If you've drifted, correct course and say so in one line.
 3. Use this plugin's agents (they are read-only or scoped by design, and pick their own model):
-   - `ralph-plan:scout` (Sonnet, read-only): Phase 1 recon.
+   - `ralph-plan:scout` (Sonnet; writes only source digests): Phase 1 recon.
    - `ralph-plan:reviewer-top` (your session model, read-only): Phase 6 plan review and the final branch review.
    - `ralph-plan:implementer` (Sonnet) / `ralph-plan:implementer-top` (session model): build steps.
    - `ralph-plan:reviewer` (Sonnet, read-only): routine step review.
@@ -37,7 +37,9 @@ Strip the mode flag from the task text. Output a one-line banner at the start of
 
 ## Phase 1/8: Discover
 
-Size the repo first (`git ls-files | wc -l`, top-level listing, README/CLAUDE.md, manifest files, `git log --oneline -15`).
+Size the repo first (`git ls-files | wc -l`, top-level listing, README/CLAUDE.md, manifest files, `git log --oneline -15`, and the total size of docs/notes/research: `find . -name '*.md' -o -name '*.txt' -o -name '*.csv' | xargs wc -c | tail -1`).
+
+**Keep this session lean.** Everything you read now stays in this session's context and is re-read on every build-loop turn later. So don't read big material yourself. If docs, research notes or data files total more than about 100 KB, launch `ralph-plan:scout` agents, one per area. Pick the plan folder name now (`docs/plans/YYYY-MM-DD-<slug>`). Each scout reads its files and writes a factual digest to `<plan folder>/sources/<area>.md`: key facts, figures with their source file, dates and contradictions. It returns only a 10-line summary to you. Read the digests, not the originals. Workers and reviewers can open the originals later.
 
 - **Small repo (≲50 files) or trivial task:** scan it yourself.
 - **Otherwise:** launch three `ralph-plan:scout` agents in parallel —
@@ -123,6 +125,8 @@ Created: YYYY-MM-DD · Status: Pending · Branch: ralph/<slug>
 - <criterion> — `<command>`
 ```
 
+**Writing tasks** (proposals, reports, web copy, anything a client reads): add a success criterion and a verify.sh check, where possible, that key figures and claims appear in the source digests (`<plan folder>/sources/`) or the source files. Also plan the final review as a fact-check (see prompt.md).
+
 **verify.sh** — `#!/usr/bin/env bash` + `set -uo pipefail`. Runs every success-criteria command, prints `PASS`/`FAIL <criterion>` for each, exits 0 only if all pass. No mutations, no network unless the task needs it, finishes in under 8 minutes. Check it with `bash -n`. Running it now should FAIL (nothing is built yet) — if it passes already, the checks are too weak; strengthen them.
 
 **prompt.md** — the build-loop instructions, copied from the template below with `<PLAN_DIR>` and `<PROMISE>` filled in.
@@ -149,6 +153,10 @@ Created: YYYY-MM-DD · Status: Pending · Branch: ralph/<slug>
 
 You are the orchestrator of an unattended build loop. The Stop hook re-sends this file each time you stop, until you finish or hit the iteration limit. Nobody is watching, so do not ask questions. Keep your own turns short and mechanical. Build workers do the heavy lifting in fresh contexts, which keeps this session small across many iterations.
 
+**You never edit project files yourself.** Every change goes to an implementer, including review fixes, small steps, one-line tweaks and verify fixes. Use `implementer` (Sonnet) for small, low-risk changes. The only files you write are plan.md (checkboxes, Attempts, Status, step corrections), progress.md and, under the rule below, verify.sh.
+
+**verify.sh is yours alone.** Change it only to fix a command that is genuinely broken or to add checks, never to loosen one. Log every change in progress.md as `verify.sh changed: <why>`. If a worker touched it, revert that with `git checkout -- <PLAN_DIR>/verify.sh`.
+
 Plan: <PLAN_DIR>/plan.md · Log: <PLAN_DIR>/progress.md · Check: <PLAN_DIR>/verify.sh
 Agents: ralph-plan:implementer (Sonnet), ralph-plan:implementer-top (session model), ralph-plan:reviewer (Sonnet, read-only), ralph-plan:reviewer-top (session model, read-only). If `RALPH_PLAN_WORK_MODEL` is set, pass it as `model` for implementer and reviewer.
 
@@ -171,7 +179,7 @@ Agents: ralph-plan:implementer (Sonnet), ralph-plan:implementer-top (session mod
 6. End your turn. The loop brings you back for the next step.
 
 ## When every step is ticked
-1. **Final branch review, done once:** if progress.md has no "Final review done" line, launch `reviewer-top`. Give it the plan path and `git diff <Base>...HEAD`, and have it check against Task, Intake answers and Success criteria. Send FIX findings to `implementer-top`, then re-run the affected Verify commands and commit `final review fixes`. Log "Final review done".
+1. **Final branch review, done once:** if progress.md has no "Final review done" line, launch `reviewer-top`. Give it the plan path and `git diff <Base>...HEAD`, and have it check against Task, Intake answers and Success criteria. For writing tasks, launch a second `reviewer-top` in parallel as a **fact-checker**. It checks every figure, date, name, price and claim in the deliverable against the source files, and lists anything unsupported, wrong or over-stated. Send FIX findings to `implementer-top`, then re-run the affected Verify commands and commit `final review fixes`. Log "Final review done".
 2. Run `bash <PLAN_DIR>/verify.sh`. If anything fails, send the output to `implementer-top`, commit the fix and rerun it.
 3. When verify.sh exits 0, set `Status: Done` in plan.md, commit, and end your reply with exactly: <promise><PROMISE></promise>
    The hook re-runs verify.sh itself, so a false promise just costs an iteration.

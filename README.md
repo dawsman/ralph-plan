@@ -63,8 +63,21 @@ The loop ends when:
 
 - **Done:** Claude outputs the completion promise **and** the Stop hook runs `verify.sh` itself and it exits 0. A premature "done" is rejected and the failure output is fed back.
 - **Blocked:** Claude needs something only a human can give, such as credentials or a product decision. It writes the details to `progress.md` and stops instead of burning iterations.
-- **Limit:** max iterations reached (steps × 3, 9–60).
+- **Limit:** max iterations reached (steps × 3 + 3, 9–60).
 - **Cancelled:** you run `/ralph-plan:cancel`.
+
+### Safe to leave running
+
+Several independent brakes stop a run from looping forever or burning tokens while you're away:
+
+- **Iteration cap:** steps × 3 + 3, with a hard ceiling of 60 whatever the plan says.
+- **Time limit:** 6 hours by default (`RALPH_PLAN_MAX_HOURS`). Checked at every stop and before every tool call, including inside workers, so even a single runaway turn is cut off.
+- **Stall detector:** if 3 turns in a row change nothing (no commit, no file edits, no plan update — log lines don't count), the loop stops.
+- **Retry cap:** a step that fails its check 3 times stops the run as blocked. It doesn't keep trying.
+- **Blocked exit:** when Claude needs something only you can provide, it stops and says why.
+- **Check timeout:** `verify.sh` is killed after about 8 minutes.
+
+Every stop is logged in `progress.md` and sent to `RALPH_PLAN_NOTIFY` if you've set it.
 
 Claude never pushes, deploys or touches production from inside the loop. Everything stays on the local branch for you to review.
 

@@ -1,5 +1,5 @@
 {
-  "description": "Ralph Plan build loop — re-feeds the plan until verify.sh passes",
+  "description": "Ralph Plan build loop — re-feeds the plan until verify.sh passes; time guard on tool calls",
   "hooks": {
     "Stop": [
       {
@@ -8,6 +8,18 @@
             "type": "command",
             "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/stop-hook.sh\"",
             "timeout": 600
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/time-guard.sh\"",
+            "timeout": 10
           }
         ]
       }

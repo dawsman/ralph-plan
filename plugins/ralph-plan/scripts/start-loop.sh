@@ -26,6 +26,9 @@ cd "$ROOT"
 [[ -f "$PLAN_DIR/prompt.md" ]] || die "missing $PLAN_DIR/prompt.md"
 [[ -f "$PLAN_DIR/verify.sh" ]] || die "missing $PLAN_DIR/verify.sh"
 [[ "$MAX" =~ ^[0-9]+$ ]]       || die "max-iterations must be a number (got '$MAX')"
+(( MAX > 60 )) && MAX=60   # hard ceiling, whatever the plan asked for
+MAX_HOURS="${RALPH_PLAN_MAX_HOURS:-6}"
+[[ "$MAX_HOURS" =~ ^[0-9]+$ ]] || MAX_HOURS=6
 [[ "$PROMISE" =~ ^[A-Z0-9_]+$ ]] || die "promise must be ALL_CAPS_UNDERSCORE (got '$PROMISE')"
 bash -n "$PLAN_DIR/verify.sh"  || die "$PLAN_DIR/verify.sh has a syntax error"
 chmod +x "$PLAN_DIR/verify.sh"
@@ -48,11 +51,15 @@ max_iterations: $MAX
 completion_promise: $PROMISE
 plan_dir: $PLAN_DIR
 started_at: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+started_epoch: $(date +%s)
+max_hours: $MAX_HOURS
+fingerprint: none
+stalls: 0
 ---
 EOF
 
 echo "Ralph Plan loop started."
 echo "  Plan:       $PLAN_DIR/plan.md"
 echo "  Done when:  <promise>$PROMISE</promise> is output AND $PLAN_DIR/verify.sh exits 0"
-echo "  Max loops:  $MAX"
+echo "  Max loops:  $MAX · time limit ${MAX_HOURS}h · stops after 3 turns with no change"
 echo "  Stop early: /ralph-plan:cancel"
